@@ -20,6 +20,8 @@ import { GoldHistoryModal } from './components/modals/GoldHistoryModal';
 import { BudgetAdjustModal } from './components/modals/BudgetAdjustModal';
 import { NewSavingsPosModal } from './components/modals/NewSavingsPosModal';
 import { SyncLogModal } from './components/modals/SyncLogModal';
+import { FamilyProfileModal } from './components/modals/FamilyProfileModal';
+import { EditChildModal } from './components/modals/EditChildModal';
 
 const AppContent: React.FC = () => {
   const { activeTab } = useFinance();
@@ -50,6 +52,8 @@ const AppContent: React.FC = () => {
       <BudgetAdjustModal />
       <NewSavingsPosModal />
       <SyncLogModal />
+      <FamilyProfileModal />
+      <EditChildModal />
     </div>
   );
 };

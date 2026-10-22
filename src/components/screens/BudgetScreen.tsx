@@ -8,6 +8,7 @@ export const BudgetScreen: React.FC = () => {
     totalPlafon,
     totalPengeluaran,
     sisaPlafon,
+    familyProfile,
     setIsBudgetAdjustModalOpen,
     setIsNewSavingsModalOpen,
     setIsSyncLogModalOpen,
@@ -16,7 +17,7 @@ export const BudgetScreen: React.FC = () => {
 
   const [activeTabFilter, setActiveTabFilter] = useState<'semua' | 'keluarga' | 'zakat' | 'bisnis'>('semua');
   const [expandedCards, setExpandedCards] = useState<{ [key: string]: boolean }>({
-    'b-1': true, // Keep first open by default
+    'b-1': true,
   });
   const [subItemModalBudget, setSubItemModalBudget] = useState<string | null>(null);
   const [subItemName, setSubItemName] = useState('');
@@ -39,10 +40,9 @@ export const BudgetScreen: React.FC = () => {
     return true;
   });
 
-  const overallPercentage = Math.round((totalPengeluaran / totalPlafon) * 100);
-  // Semicircular stroke math (arc length ~ 188.5)
+  const overallPercentage = Math.round((totalPengeluaran / (totalPlafon || 1)) * 100);
   const arcLength = 188.5;
-  const strokeOffset = arcLength - (arcLength * overallPercentage) / 100;
+  const strokeOffset = arcLength - (arcLength * Math.min(overallPercentage, 100)) / 100;
 
   const handleAddSubItemSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +76,7 @@ export const BudgetScreen: React.FC = () => {
           </div>
         </div>
         <p className="font-body-sm text-xs text-on-surface-variant">
-          Plafon alokasi berkah &amp; belanja terpadu Sufian &amp; Qori
+          Plafon alokasi berkah &amp; belanja terpadu {familyProfile.familyName}
         </p>
       </section>
 
@@ -388,7 +388,7 @@ export const BudgetScreen: React.FC = () => {
           </div>
           <p className="font-body-sm text-xs text-on-surface-variant leading-relaxed">
             MasyaAllah! Jika rata-rata harian dijaga di bawah <strong>Rp 338.000</strong>, sisa dana
-            bisa langsung dialihkan ke <em>Tabungan Qurban 2027</em> atau <em>Dana Darurat Keluarga</em>.
+            bisa langsung dialihkan ke <em>Tabungan Qurban</em> atau <em>Dana Darurat Keluarga</em>.
           </p>
         </div>
 
@@ -419,10 +419,10 @@ export const BudgetScreen: React.FC = () => {
         <div className="flex items-center gap-2">
           <div className="flex -space-x-1.5 overflow-hidden">
             <div className="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[10px] font-bold ring-1 ring-surface">
-              S
+              {familyProfile.member1.name.slice(0, 1)}
             </div>
             <div className="w-6 h-6 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-[10px] font-bold ring-1 ring-surface">
-              Q
+              {familyProfile.member2.name.slice(0, 1)}
             </div>
           </div>
           <span className="font-label-sm text-xs text-on-surface-variant">

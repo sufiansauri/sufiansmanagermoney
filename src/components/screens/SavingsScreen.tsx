@@ -7,9 +7,11 @@ export const SavingsScreen: React.FC = () => {
     goldHolding,
     setSelectedChildForDeposit,
     setSelectedChildForPortfolio,
+    setChildToEdit,
     setIsEducationCalculatorOpen,
     setIsGoldHistoryModalOpen,
     setIsNewSavingsModalOpen,
+    setIsFamilyProfileModalOpen,
   } = useFinance();
 
   const formatIDR = (val: number) => `Rp ${val.toLocaleString('id-ID')}`;
@@ -22,11 +24,21 @@ export const SavingsScreen: React.FC = () => {
     <div className="flex flex-col w-full px-4 pb-6 gap-5">
       {/* Top Title & Sharia Akad Banner */}
       <div className="flex flex-col pt-2">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/70 w-fit mb-2 border border-secondary-container/80">
-          <span className="material-symbols-outlined text-secondary !text-[16px]">verified_user</span>
-          <span className="font-label-sm text-xs text-on-secondary-fixed-variant font-semibold">
-            Akad Mudharabah &amp; Wadiah Syariah
-          </span>
+        <div className="flex items-center justify-between">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/70 w-fit mb-2 border border-secondary-container/80">
+            <span className="material-symbols-outlined text-secondary !text-[16px]">verified_user</span>
+            <span className="font-label-sm text-xs text-on-secondary-fixed-variant font-semibold">
+              Akad Mudharabah &amp; Wadiah Syariah
+            </span>
+          </div>
+          <button
+            onClick={() => setIsFamilyProfileModalOpen(true)}
+            className="text-primary hover:text-primary-container text-xs font-semibold flex items-center gap-1 cursor-pointer"
+            title="Pengaturan profil & nama"
+          >
+            <span className="material-symbols-outlined !text-[16px]">settings</span>
+            <span>Ubah Profil</span>
+          </button>
         </div>
         <h2 className="font-display text-xl md:text-2xl font-bold text-on-surface tracking-tight">
           Tabungan &amp; Dana Pendidikan Anak
@@ -36,7 +48,7 @@ export const SavingsScreen: React.FC = () => {
         </p>
       </div>
 
-      {/* Hero Card: Total Portofolio 3 Buah Hati */}
+      {/* Hero Card: Total Portofolio Buah Hati */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-container to-secondary p-5 text-on-primary shadow-md">
         <div className="absolute -right-6 -bottom-8 opacity-10 pointer-events-none">
           <span className="material-symbols-outlined !text-[140px]">savings</span>
@@ -118,14 +130,16 @@ export const SavingsScreen: React.FC = () => {
             Portofolio khusus per anak sesuai jenjang studi
           </p>
         </div>
-        <span className="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-xs font-semibold">
-          {childrenSavings.length} Anak
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-xs font-semibold">
+            {childrenSavings.length} Pos
+          </span>
+        </div>
       </div>
 
       {/* Children Cards List */}
       <div className="flex flex-col gap-3.5">
-        {childrenSavings.map((child) => (
+        {childrenSavings.map((child, index) => (
           <div
             key={child.id}
             className="flex flex-col rounded-2xl bg-surface-container-lowest shadow-sm overflow-hidden transition-all border border-surface-container-low"
@@ -142,22 +156,31 @@ export const SavingsScreen: React.FC = () => {
                     />
                     <div
                       className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-on-primary ${
-                        child.badgeNumber === 1
+                        index % 3 === 0
                           ? 'bg-primary'
-                          : child.badgeNumber === 2
+                          : index % 3 === 1
                           ? 'bg-secondary'
                           : 'bg-tertiary'
                       }`}
                     >
                       <span className="font-label-sm text-[10px] font-bold text-white">
-                        {child.badgeNumber}
+                        {index + 1}
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-headline-sm text-sm font-bold text-on-surface">
-                      {child.name}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-headline-sm text-sm font-bold text-on-surface">
+                        {child.name}
+                      </span>
+                      <button
+                        onClick={() => setChildToEdit(child)}
+                        className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                        title="Edit data anak"
+                      >
+                        <span className="material-symbols-outlined !text-[15px]">edit</span>
+                      </button>
+                    </div>
                     <span className="font-body-sm text-xs text-on-surface-variant">
                       {child.age} • {child.level}
                     </span>
@@ -177,12 +200,12 @@ export const SavingsScreen: React.FC = () => {
               {/* Progress Box */}
               <div className="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1.5 border border-surface-container-low">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-label-sm text-on-surface-variant">Target: {child.targetName}</span>
+                  <span className="font-label-sm text-on-surface-variant truncate">Target: {child.targetName}</span>
                   <span
                     className={`font-label-sm font-bold ${
-                      child.badgeNumber === 1
+                      index % 3 === 0
                         ? 'text-primary'
-                        : child.badgeNumber === 2
+                        : index % 3 === 1
                         ? 'text-secondary'
                         : 'text-tertiary'
                     }`}
@@ -211,7 +234,7 @@ export const SavingsScreen: React.FC = () => {
                 <div className="flex items-center gap-1.5 truncate">
                   <span
                     className={`material-symbols-outlined !text-[18px] ${
-                      child.badgeNumber === 1 ? 'text-tertiary' : 'text-secondary'
+                      index % 3 === 0 ? 'text-tertiary' : 'text-secondary'
                     }`}
                   >
                     {child.iconAsset}

@@ -2,24 +2,24 @@ import React from 'react';
 import { useFinance } from '../../context/FinanceContext';
 
 export const SyncLogModal: React.FC = () => {
-  const { isSyncLogModalOpen, setIsSyncLogModalOpen } = useFinance();
+  const { isSyncLogModalOpen, setIsSyncLogModalOpen, familyProfile } = useFinance();
 
   if (!isSyncLogModalOpen) return null;
 
   const logs = [
     {
       id: 'log-1',
-      device: 'iPhone 15 Pro (Sufian)',
-      user: 'Sufian (Suami)',
-      action: 'Sinkronisasi mutasi rekening BSI Payroll',
+      device: `Perangkat Utama (${familyProfile.member1.name})`,
+      user: `${familyProfile.member1.name} (${familyProfile.member1.role})`,
+      action: 'Sinkronisasi mutasi rekening operasional syariah',
       time: 'Hari ini, 16:42 WIB',
       status: 'Sukses',
     },
     {
       id: 'log-2',
-      device: 'Samsung Galaxy S24 (Qori)',
-      user: 'Qori (Istri)',
-      action: 'Catat belanja Superindo & invoice Snack Box',
+      device: `Perangkat Pasangan (${familyProfile.member2.name})`,
+      user: `${familyProfile.member2.name} (${familyProfile.member2.role})`,
+      action: `Catat belanja pangan & pesanan ${familyProfile.businessName}`,
       time: 'Hari ini, 10:18 WIB',
       status: 'Sukses',
     },
@@ -33,9 +33,9 @@ export const SyncLogModal: React.FC = () => {
     },
     {
       id: 'log-4',
-      device: 'iPhone 15 Pro (Sufian)',
-      user: 'Sufian (Suami)',
-      action: 'Update alokasi tabungan pendidikan Abdussyakur',
+      device: `Perangkat Utama (${familyProfile.member1.name})`,
+      user: `${familyProfile.member1.name} (${familyProfile.member1.role})`,
+      action: 'Update alokasi tabungan pendidikan anak',
       time: '18 Okt 2026, 11:05 WIB',
       status: 'Sukses',
     },
@@ -51,7 +51,7 @@ export const SyncLogModal: React.FC = () => {
             </div>
             <div>
               <h3 className="font-display font-bold text-base text-on-surface">Log Sinkronisasi Keluarga</h3>
-              <p className="text-xs text-on-surface-variant">Transparansi pencatatan antara Sufian &amp; Qori</p>
+              <p className="text-xs text-on-surface-variant">Transparansi pencatatan {familyProfile.familyName}</p>
             </div>
           </div>
           <button

@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { Transaction, FamilyMember } from '../../types/finance';
+import { Transaction } from '../../types/finance';
 
 export const TransactionsScreen: React.FC = () => {
-  const { transactions, selectedMonth, deleteTransaction } = useFinance();
+  const { transactions, selectedMonth, deleteTransaction, familyProfile } = useFinance();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedMember, setSelectedMember] = useState<'semua' | 'sufian' | 'qori'>('semua');
+  const [selectedMember, setSelectedMember] = useState<'semua' | 'member1' | 'member2'>('semua');
   const [selectedCategory, setSelectedCategory] = useState<string>('semua');
   const [activeTransactionDetail, setActiveTransactionDetail] = useState<Transaction | null>(null);
 
@@ -15,8 +15,12 @@ export const TransactionsScreen: React.FC = () => {
   const filteredTransactions = useMemo(() => {
     return transactions.filter((tx) => {
       // Member filter
-      if (selectedMember === 'sufian' && tx.member !== 'Sufian') return false;
-      if (selectedMember === 'qori' && tx.member !== 'Qori') return false;
+      if (selectedMember === 'member1' && tx.member !== familyProfile.member1.name && tx.member !== 'Ayah' && tx.member !== 'Sufian') {
+        return false;
+      }
+      if (selectedMember === 'member2' && tx.member !== familyProfile.member2.name && tx.member !== 'Ibu' && tx.member !== 'Qori') {
+        return false;
+      }
 
       // Category filter
       if (selectedCategory === 'pengeluaran' && tx.type !== 'outflow') return false;
@@ -40,7 +44,7 @@ export const TransactionsScreen: React.FC = () => {
 
       return true;
     });
-  }, [transactions, selectedMember, selectedCategory, searchQuery]);
+  }, [transactions, selectedMember, selectedCategory, searchQuery, familyProfile]);
 
   // Group transactions by date
   const groupedTransactions = useMemo(() => {
@@ -166,34 +170,34 @@ export const TransactionsScreen: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setSelectedMember('sufian')}
+            onClick={() => setSelectedMember('member1')}
             className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm transition-transform active:scale-95 cursor-pointer ${
-              selectedMember === 'sufian'
+              selectedMember === 'member1'
                 ? 'bg-primary text-on-primary'
                 : 'bg-surface-container-lowest text-on-surface hover:bg-secondary-container/30 border border-surface-container-low'
             }`}
             type="button"
           >
             <span className="w-4 h-4 rounded-full bg-surface-container-high flex items-center justify-center text-[10px]">
-              🧔
+              {familyProfile.member1.emoji}
             </span>
-            <span>Sufian</span>
+            <span>{familyProfile.member1.name}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
           </button>
 
           <button
-            onClick={() => setSelectedMember('qori')}
+            onClick={() => setSelectedMember('member2')}
             className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm transition-transform active:scale-95 cursor-pointer ${
-              selectedMember === 'qori'
+              selectedMember === 'member2'
                 ? 'bg-primary text-on-primary'
                 : 'bg-surface-container-lowest text-on-surface hover:bg-secondary-container/30 border border-surface-container-low'
             }`}
             type="button"
           >
             <span className="w-4 h-4 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px]">
-              🧕
+              {familyProfile.member2.emoji}
             </span>
-            <span>Qori</span>
+            <span>{familyProfile.member2.name}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
           </button>
         </div>
@@ -308,7 +312,6 @@ export const TransactionsScreen: React.FC = () => {
                   const isOutflow = tx.type === 'outflow';
                   const isInflow = tx.type === 'inflow';
                   const isTransfer = tx.type === 'transfer';
-                  const isZakat = tx.type === 'zakat';
 
                   const prefix = isOutflow ? '-' : isInflow ? '+' : isTransfer ? '⇄ ' : '-';
                   const amountClass = isOutflow
@@ -352,7 +355,7 @@ export const TransactionsScreen: React.FC = () => {
                             </div>
                           </div>
 
-                          {/* Metadata footer: Badges & Member Avatar */}
+                          {/* Metadata footer */}
                           <div className="flex items-center justify-between pt-2.5 mt-2 bg-surface-container-low/50 -mx-3 -mb-3 px-3 py-1.5 rounded-b-xl border-t border-surface-container-low/40">
                             <div className="flex items-center gap-1.5 overflow-hidden">
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-high/60 text-on-surface-variant font-label-sm text-[11px] truncate">
@@ -373,7 +376,11 @@ export const TransactionsScreen: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-1 shrink-0">
                               <span className="w-4 h-4 rounded-full bg-tertiary-fixed text-[9px] flex items-center justify-center shadow-xs">
-                                {tx.member === 'Qori' ? '🧕' : tx.member === 'Sufian' ? '🧔' : '🤝'}
+                                {tx.member === familyProfile.member2.name || tx.member === 'Ibu'
+                                  ? familyProfile.member2.emoji
+                                  : tx.member === familyProfile.member1.name || tx.member === 'Ayah'
+                                  ? familyProfile.member1.emoji
+                                  : '🤝'}
                               </span>
                               <span className="font-label-sm text-xs text-on-surface-variant font-medium">
                                 {tx.member}

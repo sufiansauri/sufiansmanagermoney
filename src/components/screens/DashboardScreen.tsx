@@ -8,9 +8,11 @@ export const DashboardScreen: React.FC = () => {
     totalPemasukan,
     totalPengeluaran,
     transactions,
+    childrenSavings,
+    familyProfile,
     setActiveTab,
     openRecordModalWithType,
-    setIsBudgetAdjustModalOpen,
+    setIsFamilyProfileModalOpen,
   } = useFinance();
 
   const [balanceViewMode, setBalanceViewMode] = useState<'semua' | 'harian'>('semua');
@@ -172,7 +174,7 @@ export const DashboardScreen: React.FC = () => {
                 {formatIDR(totalPemasukan)}
               </div>
               <p className="font-label-sm text-xs text-on-surface-variant mt-0.5 truncate">
-                Gaji &amp; Usaha Makanan
+                Gaji &amp; {familyProfile.businessName}
               </p>
             </div>
           </div>
@@ -228,7 +230,7 @@ export const DashboardScreen: React.FC = () => {
           </div>
         </section>
 
-        {/* Alokasi & Pos Rumah Tangga (Detailed Cards) */}
+        {/* Alokasi & Pos Rumah Tangga */}
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -277,7 +279,7 @@ export const DashboardScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 2: Pendidikan & Anak (3 Sub-Wallets) */}
+          {/* Card 2: Pendidikan Anak (Dynamic List from context) */}
           <div className="p-4 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)] flex flex-col gap-3 border border-surface-container-low">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -286,92 +288,50 @@ export const DashboardScreen: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-headline-sm text-sm font-semibold text-on-surface">
-                    Pendidikan 3 Anak
+                    Pendidikan Buah Hati ({childrenSavings.length} Pos)
                   </h3>
                   <p className="font-body-sm text-xs text-on-surface-variant">
                     SPP, les privat &amp; gizi balita
                   </p>
                 </div>
               </div>
-              <span className="font-label-sm text-xs font-bold text-primary">
+              <button
+                onClick={() => setActiveTab('tabungan-anak')}
+                className="font-label-sm text-xs font-bold text-primary hover:underline cursor-pointer"
+              >
                 Rp 3.500.000 Total
-              </span>
+              </button>
             </div>
             <div className="flex flex-col gap-2 pt-1 border-t border-surface-container">
-              {/* Abdussyakur */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-primary-fixed-dim/40 flex items-center justify-center text-primary font-bold text-xs">
-                    A
+              {childrenSavings.slice(0, 3).map((child) => (
+                <div
+                  key={child.id}
+                  onClick={() => setActiveTab('tabungan-anak')}
+                  className="flex items-center justify-between py-1 cursor-pointer hover:bg-surface-container-low/40 rounded-lg px-1 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-primary-fixed-dim/40 flex items-center justify-center text-primary font-bold text-xs">
+                      {child.name.slice(0, 1)}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-label-sm text-xs font-semibold text-on-surface">
+                        {child.name}
+                      </span>
+                      <span className="font-body-sm text-on-surface-variant text-[11px]">
+                        {child.level}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-label-sm text-xs font-semibold text-on-surface">
-                      Abdussyakur
+                  <div className="text-right">
+                    <span className="font-label-sm text-xs font-semibold text-on-surface tabular-nums">
+                      {formatIDR(child.currentAmount)}
                     </span>
-                    <span className="font-body-sm text-on-surface-variant text-[11px]">
-                      SD Islam Terpadu
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-label-sm text-xs font-semibold text-on-surface">
-                    Rp 1.800.000
-                  </span>
-                  <span className="font-body-sm text-on-surface-variant text-[11px] block">
-                    / Rp 2.000.000
-                  </span>
-                </div>
-              </div>
-
-              {/* Ubay Ansor */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold text-xs">
-                    U
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-label-sm text-xs font-semibold text-on-surface">
-                      Ubay Ansor
-                    </span>
-                    <span className="font-body-sm text-on-surface-variant text-[11px]">
-                      TK Al-Azhar
+                    <span className="font-body-sm text-on-surface-variant text-[11px] block tabular-nums">
+                      / {formatIDR(child.targetAmount)}
                     </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-label-sm text-xs font-semibold text-on-surface">
-                    Rp 950.000
-                  </span>
-                  <span className="font-body-sm text-on-surface-variant text-[11px] block">
-                    / Rp 1.200.000
-                  </span>
-                </div>
-              </div>
-
-              {/* Sarah Shalihah */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary font-bold text-xs">
-                    S
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-label-sm text-xs font-semibold text-on-surface">
-                      Sarah Shalihah
-                    </span>
-                    <span className="font-body-sm text-on-surface-variant text-[11px]">
-                      Nutrisi &amp; Posyandu Balita
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-label-sm text-xs font-semibold text-on-surface">
-                    Rp 750.000
-                  </span>
-                  <span className="font-body-sm text-on-surface-variant text-[11px] block">
-                    / Rp 1.000.000
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -411,17 +371,17 @@ export const DashboardScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 4: Bisnis Dapur Qori & Server Sufian */}
+          {/* Card 4: Bisnis Keluarga & Hobi/Edukasi */}
           <div className="grid grid-cols-2 gap-3">
-            {/* Bisnis Dapur Qori */}
+            {/* Bisnis Keluarga */}
             <div className="p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)] flex flex-col justify-between border border-surface-container-low">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-secondary">
-                    <span className="material-symbols-outlined !text-[16px]">bakery_dining</span>
+                    <span className="material-symbols-outlined !text-[16px]">storefront</span>
                   </div>
-                  <span className="font-label-sm text-xs font-bold text-on-surface">
-                    Dapur Qori
+                  <span className="font-label-sm text-xs font-bold text-on-surface truncate">
+                    {familyProfile.businessName}
                   </span>
                 </div>
                 <span className="font-body-sm text-xs text-on-surface-variant block">
@@ -436,15 +396,15 @@ export const DashboardScreen: React.FC = () => {
               </span>
             </div>
 
-            {/* Hobi & Pengembangan Diri Sufian */}
+            {/* Hobi & Pengembangan Diri */}
             <div className="p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)] flex flex-col justify-between border border-surface-container-low">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined !text-[16px]">dns</span>
+                    <span className="material-symbols-outlined !text-[16px]">menu_book</span>
                   </div>
                   <span className="font-label-sm text-xs font-bold text-on-surface">
-                    Server &amp; Edu
+                    Diri &amp; Edukasi
                   </span>
                 </div>
                 <span className="font-body-sm text-xs text-on-surface-variant block">
@@ -461,7 +421,7 @@ export const DashboardScreen: React.FC = () => {
           </div>
         </section>
 
-        {/* Multi-User Activity Stream (Suami & Istri) */}
+        {/* Multi-User Activity Stream */}
         <section className="flex flex-col gap-3 pt-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -484,7 +444,6 @@ export const DashboardScreen: React.FC = () => {
               const isOutflow = tx.type === 'outflow';
               const isInflow = tx.type === 'inflow';
               const isTransfer = tx.type === 'transfer';
-              const isZakat = tx.type === 'zakat';
 
               const prefix = isOutflow ? '-' : isInflow ? '+' : isTransfer ? '⇄ ' : '-';
               const amountClass = isOutflow
@@ -515,15 +474,7 @@ export const DashboardScreen: React.FC = () => {
                       </span>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px]">
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              tx.member === 'Qori'
-                                ? 'bg-secondary'
-                                : tx.member === 'Sufian'
-                                ? 'bg-primary'
-                                : 'bg-tertiary'
-                            }`}
-                          ></span>{' '}
+                          <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>{' '}
                           {tx.member} {tx.memberRole ? `(${tx.memberRole})` : ''}
                         </span>
                         <span className="font-body-sm text-on-surface-variant text-[11px]">
@@ -548,13 +499,22 @@ export const DashboardScreen: React.FC = () => {
         </section>
 
         {/* Warm Family Financial Affirmation Note */}
-        <div className="p-3.5 rounded-2xl bg-secondary-container/30 flex items-center gap-3 border border-secondary-container/40">
-          <div className="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined !text-[18px]">handshake</span>
+        <div className="p-3.5 rounded-2xl bg-secondary-container/30 flex items-center justify-between gap-3 border border-secondary-container/40">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined !text-[18px]">handshake</span>
+            </div>
+            <p className="font-body-sm text-xs text-on-secondary-fixed-variant leading-relaxed">
+              &ldquo;Keluarga sakinah tumbuh dari rezeki halal yang teratur dan saling transparan.&rdquo;
+            </p>
           </div>
-          <p className="font-body-sm text-xs text-on-secondary-fixed-variant leading-relaxed">
-            &ldquo;Keluarga sakinah tumbuh dari rezeki halal yang teratur dan saling transparan.&rdquo;
-          </p>
+          <button
+            onClick={() => setIsFamilyProfileModalOpen(true)}
+            className="text-primary hover:text-primary-container text-xs font-semibold shrink-0 cursor-pointer flex items-center gap-0.5"
+            title="Ubah profil keluarga"
+          >
+            <span className="material-symbols-outlined !text-[16px]">settings</span>
+          </button>
         </div>
       </div>
     </div>

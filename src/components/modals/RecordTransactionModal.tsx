@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { TransactionType, FamilyMember, BankAccount } from '../../types/finance';
+import { TransactionType, BankAccount } from '../../types/finance';
 
 export const RecordTransactionModal: React.FC = () => {
   const {
@@ -9,6 +9,7 @@ export const RecordTransactionModal: React.FC = () => {
     recordModalInitialType,
     addTransaction,
     currentUser,
+    familyProfile,
   } = useFinance();
 
   const [txType, setTxType] = useState<TransactionType>('outflow');
@@ -16,7 +17,7 @@ export const RecordTransactionModal: React.FC = () => {
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [category, setCategory] = useState('Belanja & Dapur');
-  const [member, setMember] = useState<FamilyMember>('Qori');
+  const [member, setMember] = useState<string>('Bersama');
   const [account, setAccount] = useState<BankAccount>('BSI Debit');
   const [notes, setNotes] = useState('');
   const [hasReceipt, setHasReceipt] = useState(false);
@@ -26,21 +27,21 @@ export const RecordTransactionModal: React.FC = () => {
       setTxType(recordModalInitialType);
       if (recordModalInitialType === 'inflow') {
         setCategory('Bisnis Sampingan');
-        setMember('Qori');
+        setMember(familyProfile.member2.name);
       } else if (recordModalInitialType === 'zakat') {
         setCategory('Zakat & Infaq');
         setTitle('Sedekah Berkah');
-        setMember('Sufian');
+        setMember(familyProfile.member1.name);
       } else if (recordModalInitialType === 'transfer') {
         setCategory('Transfer Internal');
         setTitle('Alokasi Tabungan');
         setMember('Bersama');
       }
     }
-    if (currentUser !== 'Bersama') {
+    if (currentUser) {
       setMember(currentUser);
     }
-  }, [recordModalInitialType, currentUser, isRecordModalOpen]);
+  }, [recordModalInitialType, currentUser, isRecordModalOpen, familyProfile]);
 
   if (!isRecordModalOpen) return null;
 
@@ -71,13 +72,20 @@ export const RecordTransactionModal: React.FC = () => {
       zakat: 'bg-tertiary-fixed/60 text-tertiary',
     };
 
+    const role =
+      member === familyProfile.member1.name
+        ? familyProfile.member1.role
+        : member === familyProfile.member2.name
+        ? familyProfile.member2.role
+        : 'Bersama';
+
     addTransaction({
       title: finalTitle,
       subtitle: finalSubtitle,
       amount: parsedAmount,
       type: txType,
       member,
-      memberRole: member === 'Sufian' ? 'Suami' : member === 'Qori' ? 'Istri' : 'Bersama',
+      memberRole: role,
       category,
       account,
       dateStr: '20 Okt 2026',
@@ -217,7 +225,7 @@ export const RecordTransactionModal: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="Mis: Supermarket Superindo"
+                placeholder="Mis: Supermarket Bahan Makanan"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full text-xs p-2.5 rounded-xl border border-surface-container-high bg-surface-container-low/40 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -230,7 +238,7 @@ export const RecordTransactionModal: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="Mis: Sayur &amp; belanja mingguan"
+                placeholder="Mis: Belanja kebutuhan pangan mingguan"
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 className="w-full text-xs p-2.5 rounded-xl border border-surface-container-high bg-surface-container-low/40 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -267,11 +275,15 @@ export const RecordTransactionModal: React.FC = () => {
               </label>
               <select
                 value={member}
-                onChange={(e) => setMember(e.target.value as FamilyMember)}
+                onChange={(e) => setMember(e.target.value)}
                 className="w-full text-xs p-2.5 rounded-xl border border-surface-container-high bg-surface-container-low/40 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
               >
-                <option value="Qori">🧕 Qori (Istri)</option>
-                <option value="Sufian">🧔 Sufian (Suami)</option>
+                <option value={familyProfile.member2.name}>
+                  {familyProfile.member2.emoji} {familyProfile.member2.name} ({familyProfile.member2.role})
+                </option>
+                <option value={familyProfile.member1.name}>
+                  {familyProfile.member1.emoji} {familyProfile.member1.name} ({familyProfile.member1.role})
+                </option>
                 <option value="Bersama">🤝 Bersama</option>
               </select>
             </div>
@@ -289,7 +301,7 @@ export const RecordTransactionModal: React.FC = () => {
             >
               <option value="BSI Debit">BSI Debit (Operasional)</option>
               <option value="BSI">BSI (Tabungan Utama)</option>
-              <option value="BCA">BCA (Usaha Dapur Qori)</option>
+              <option value="BCA">BCA (Hasil Usaha Mandiri)</option>
               <option value="Jago Syariah">Jago Syariah (Kantong Anak)</option>
               <option value="QRIS BSI">QRIS BSI</option>
               <option value="Kas Tunai">Dompet Tunai Fisik</option>

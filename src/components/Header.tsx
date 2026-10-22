@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useFinance, APP_LOGO_URL, PROFILE_PHOTO_URL } from '../context/FinanceContext';
-import { FamilyMember } from '../types/finance';
+import { useFinance, APP_LOGO_URL } from '../context/FinanceContext';
 
 export const Header: React.FC = () => {
   const {
@@ -11,6 +10,8 @@ export const Header: React.FC = () => {
     markNotificationsAsRead,
     currentUser,
     setCurrentUser,
+    familyProfile,
+    setIsFamilyProfileModalOpen,
   } = useFinance();
 
   const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
@@ -62,9 +63,14 @@ export const Header: React.FC = () => {
                 Barakah Finance
               </span>
             </div>
-            <span className="font-label-sm text-[11px] text-on-surface-variant truncate">
-              Keluarga Sufian &amp; Qori
-            </span>
+            <button
+              onClick={() => setIsFamilyProfileModalOpen(true)}
+              className="text-left font-label-sm text-[11px] text-on-surface-variant truncate hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+              title="Klik untuk ubah nama profil"
+            >
+              <span>{familyProfile.familyName}</span>
+              <span className="material-symbols-outlined !text-[12px] opacity-60">edit</span>
+            </button>
           </div>
         </div>
 
@@ -93,7 +99,7 @@ export const Header: React.FC = () => {
                       setSelectedMonth(m);
                       setIsMonthDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors ${
+                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors cursor-pointer ${
                       selectedMonth === m
                         ? 'bg-secondary-container/40 text-primary font-bold'
                         : 'text-on-surface hover:bg-surface-container-low'
@@ -162,13 +168,13 @@ export const Header: React.FC = () => {
               <img
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover"
-                src={PROFILE_PHOTO_URL}
+                src={familyProfile.avatarUrl}
               />
               <span
                 className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-surface ${
-                  currentUser === 'Sufian'
+                  currentUser === familyProfile.member1.name
                     ? 'bg-primary'
-                    : currentUser === 'Qori'
+                    : currentUser === familyProfile.member2.name
                     ? 'bg-tertiary'
                     : 'bg-secondary'
                 }`}
@@ -176,42 +182,60 @@ export const Header: React.FC = () => {
             </button>
 
             {isProfileMenuOpen && (
-              <div className="absolute right-0 mt-1.5 w-56 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container-low p-2.5 z-50">
+              <div className="absolute right-0 mt-1.5 w-64 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container-low p-2.5 z-50">
                 <div className="flex items-center gap-2.5 p-2 bg-surface-container-low/60 rounded-xl mb-2">
-                  <img src={PROFILE_PHOTO_URL} className="w-9 h-9 rounded-full object-cover" alt="Profile" />
+                  <img src={familyProfile.avatarUrl} className="w-9 h-9 rounded-full object-cover" alt="Profile" />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-on-surface truncate">Sufian &amp; Qori</span>
-                    <span className="text-[10px] text-on-surface-variant">Keluarga Syariah Mandiri</span>
+                    <span className="text-xs font-bold text-on-surface truncate">{familyProfile.familyName}</span>
+                    <span className="text-[10px] text-on-surface-variant truncate">{familyProfile.subTitle}</span>
                   </div>
                 </div>
 
                 <div className="text-[11px] font-semibold text-on-surface-variant px-2 py-1">
                   Catat Sebagai:
                 </div>
-                {(['Bersama', 'Sufian', 'Qori'] as FamilyMember[]).map((member) => (
+                {[
+                  { name: 'Bersama', emoji: '🤝', desc: 'Atas Nama Bersama' },
+                  { name: familyProfile.member1.name, emoji: familyProfile.member1.emoji, desc: familyProfile.member1.role },
+                  { name: familyProfile.member2.name, emoji: familyProfile.member2.emoji, desc: familyProfile.member2.role },
+                ].map((item) => (
                   <button
-                    key={member}
+                    key={item.name}
                     onClick={() => {
-                      setCurrentUser(member);
+                      setCurrentUser(item.name);
                       setIsProfileMenuOpen(false);
                     }}
-                    className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between transition-colors ${
-                      currentUser === member
+                    className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between transition-colors cursor-pointer ${
+                      currentUser === item.name
                         ? 'bg-secondary-container text-primary font-bold'
                         : 'text-on-surface hover:bg-surface-container-low'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">
-                        {member === 'Bersama' ? '🤝' : member === 'Sufian' ? '🧔' : '🧕'}
-                      </span>
-                      <span>{member}</span>
+                      <span className="text-sm">{item.emoji}</span>
+                      <div className="flex flex-col">
+                        <span>{item.name}</span>
+                        <span className="text-[10px] text-on-surface-variant font-normal">{item.desc}</span>
+                      </div>
                     </div>
-                    {currentUser === member && (
+                    {currentUser === item.name && (
                       <span className="material-symbols-outlined !text-[14px]">check</span>
                     )}
                   </button>
                 ))}
+
+                <div className="pt-2 mt-2 border-t border-surface-container-low">
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      setIsFamilyProfileModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg bg-surface-container-high/50 hover:bg-surface-container text-primary text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined !text-[16px]">edit_note</span>
+                    <span>Ubah Nama &amp; Profil Keluarga</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

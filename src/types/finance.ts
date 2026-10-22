@@ -1,6 +1,22 @@
 export type TransactionType = 'inflow' | 'outflow' | 'transfer' | 'zakat';
-export type FamilyMember = 'Sufian' | 'Qori' | 'Bersama';
-export type BankAccount = 'BSI' | 'BCA' | 'Jago Syariah' | 'BSI Debit' | 'QRIS BSI' | 'BSI Masuk' | 'BCA QRIS' | 'BCA Virtual Acc' | 'QRIS Jago Syariah' | 'Kas Tunai';
+export type BankAccount = 'BSI' | 'BCA' | 'Jago Syariah' | 'BSI Debit' | 'QRIS BSI' | 'BSI Masuk' | 'BCA QRIS' | 'BCA Virtual Acc' | 'QRIS Jago Syariah' | 'Kas Tunai' | string;
+
+export interface FamilyMemberInfo {
+  id: 'member1' | 'member2' | 'together';
+  name: string;
+  role: string;
+  emoji: string;
+  avatarUrl?: string;
+}
+
+export interface FamilyProfile {
+  familyName: string;
+  subTitle: string;
+  member1: FamilyMemberInfo;
+  member2: FamilyMemberInfo;
+  businessName: string;
+  avatarUrl: string;
+}
 
 export interface Transaction {
   id: string;
@@ -8,12 +24,12 @@ export interface Transaction {
   subtitle: string;
   amount: number;
   type: TransactionType;
-  member: FamilyMember;
-  memberRole?: string; // 'Suami', 'Istri', 'Bersama'
+  member: string; // Member name e.g. "Ayah", "Ibu", or "Bersama"
+  memberRole?: string;
   category: string;
-  account: BankAccount | string;
-  dateStr: string; // e.g. "20 Okt 2026", "19 Okt 2026", "18 Okt 2026", "15 Okt 2026"
-  groupDate: string; // "Hari Ini", "Kemarin", "18 Oktober 2026", "15 Oktober 2026"
+  account: BankAccount;
+  dateStr: string;
+  groupDate: string;
   time: string;
   hasReceipt?: boolean;
   notes?: string;
